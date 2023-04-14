@@ -15,6 +15,10 @@ const db = knex({
 
 app.set('db', db)
 const PORT=process.env.PORT||5000
+app.get("/",function(req,res){
+    res.send("Welcome to Krishi Market");
+    return;
+})
 app.listen(PORT, () => {
     console.log(`Server listening at http://localhost:${PORT}`)
 })
