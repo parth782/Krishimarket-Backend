@@ -26,6 +26,10 @@ const Farmer=conn.define("Farmer",{
     money:{
         type:DataTypes.DOUBLE,
         defaultValue:0
+    },
+    isUpdate:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
     }
 
 

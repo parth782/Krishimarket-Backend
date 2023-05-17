@@ -6,7 +6,7 @@ const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TO
 const { body, validationResult } = require("express-validator");
 const { ensureConsumerAuthenticated } = require('../middleware/auth');
 const Consumer = require('../models/Consumer');
-const {Sequelize}=require("sequelize");
+const { Sequelize } = require("sequelize");
 const Op = Sequelize.Op;
 
 
@@ -21,7 +21,7 @@ router.post('/login', body("mobileNo").isLength({ min: 10 }).withMessage("Mobile
             .verifications
             .create({ to: '+91' + req.body.mobileNo, channel: 'sms' })
             .then((verification) => {
-                res.status(200).json({ status:"success",success: "OTP Sent Successfully" });
+                res.status(200).json({ status: "success", success: "OTP Sent Successfully" });
                 return;
             });
 
@@ -54,11 +54,12 @@ router.post("/otp-verify", body("otp").isLength({ min: 6 }).withMessage("OTP mus
             const payload = {
                 mobileNo: req.body.mobileNo,
                 role: "consumer",
-                id: consumer.id
+                id: consumer.id,
+                isUpdate: consumer.isUpdate
             };
             jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 360000 }, (err, token) => {
                 if (err) throw err;
-                res.status(200).json({ status:"success",token: token, role: "consumer" });
+                res.status(200).json({ status: "success", token: token, role: "consumer", isUpdate: consumer.isUpdate});
             });
         }
         else {
@@ -88,9 +89,10 @@ router.post("/edit", ensureConsumerAuthenticated, body('name').isLength({ min: 1
                 mobileNo: mobileNo,
                 city: city,
                 district: district,
-                
+                isUpdate: true
+
             }, { where: { id: req.user.id } });
-            return res.status(200).json({status:"success", msg: "Record Updated Successfully" });
+            return res.status(200).json({ status: "success", msg: "Record Updated Successfully" });
 
 
         } catch (err) {
@@ -101,13 +103,13 @@ router.post("/edit", ensureConsumerAuthenticated, body('name').isLength({ min: 1
 
     })
 
-    router.get("/edit",ensureConsumerAuthenticated,async(req,res)=>{
-        try{
-           const record=await Consumer.findOne({raw:true,where:{id:req.user.id}});
-           return res.status(200).json({status:"success",record:record});
-        }catch(err){
-            console.log(err);
-            return res.status(500).json({msg:"Some Error Occured"});
-        }
-    })        
+router.get("/edit", ensureConsumerAuthenticated, async (req, res) => {
+    try {
+        const record = await Consumer.findOne({ raw: true, where: { id: req.user.id } });
+        return res.status(200).json({ status: "success", record: record });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ msg: "Some Error Occured" });
+    }
+})
 module.exports = router;

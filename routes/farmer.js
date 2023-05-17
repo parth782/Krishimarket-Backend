@@ -31,6 +31,7 @@ router.post("/edit", ensureFarmerAuthenticated, body('name').isLength({ min: 1 }
                 city: city,
                 district: district,
                 bloodGroup: bloodGroup,
+                isUpdate: true
             }, { where: { id: req.user.id } });
             return res.status(200).json({ status:"success",msg: "Record Updated Successfully" });
 
@@ -101,11 +102,12 @@ router.post("/otp-verify", body("otp").isLength({ min: 6 }).withMessage("OTP mus
             const payload = {
                 mobileNo: req.body.mobileNo,
                 role: "farmer",
-                id: farmer.id
+                id: farmer.id,
+                isUpdate:farmer.isUpdate
             };
             jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 360000 }, (err, token) => {
                 if (err) throw err;
-                return res.status(200).json({ status:"success",token: token, role: "farmer" });
+                return res.status(200).json({ status:"success",token: token, role: "farmer",isUpdate:farmer.isUpdate});
             });
         }
         else {
